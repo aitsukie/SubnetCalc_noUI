@@ -1,0 +1,168 @@
+#include <iostream>
+#include <vector>
+#include <algorithm> // for find
+
+using namespace std;
+
+//classes and functions here
+
+int check(vector<int> &v, int &f, int &sid, int &num)
+{
+    if (find(v.begin(), v.end(), f) != v.end()) //finding the fourth octet in the vector.
+    {
+        num = f;
+        return f, sid;
+
+    }
+    else
+    {
+        if (v.size() > 1)
+        {
+            num = v.rbegin()[1];
+            return num, sid;
+        }
+
+    }
+
+}
+
+vector<int> calc(int &sid, int &g, int &f)
+{
+    int i = 0;
+    
+    vector<int> nets;
+
+    while(sid <= f)
+    {
+        i++;
+        sid = g * i;
+        nets.push_back(sid);
+    }
+
+    return nets;
+    
+}
+
+
+//int octEdit(int& NID, int& nextNet, int &ip)
+//{
+//    NID = NID;
+//    nextNet = nextNet;
+//    int broadcast = nextNet - 1;
+//    int firstHost = NID + 1;
+//    int lastHost = broadcast - 1;
+//
+//    return broadcast, firstHost, lastHost;
+//
+//}
+
+
+void Functions(int &grp_size, int &f, vector<int> &subnets, int &NID, int &nextNet)
+{
+    int curr_subID = 0;
+    subnets = calc(curr_subID, grp_size, f);
+    NID = check(subnets, f, curr_subID, NID);
+    nextNet = check(subnets, f, curr_subID, NID);
+    cout << "NID: " << NID << ", NEXT: " << nextNet;
+    //octEdit(NID, nextNet);
+
+
+    //int NetworkID = 0;
+    int broadcast = nextNet - 1;
+    int firstHost = NID + 1;
+    int lastHost = broadcast - 1;
+    //int NextNetwork = 0;
+
+    cout << endl;
+    cout << "Network ID: " << NID << endl;
+    cout << "Broadcast IP: " << broadcast << endl;
+    cout << "First Host IP: " << firstHost << endl;
+    cout << "Last Host IP: " << lastHost << endl;
+    cout << "Next Network ID: " << nextNet << endl;
+}
+
+
+void fourth_octet(int &c, int &f)
+{
+    vector<int> subnets; //each subnet ID 
+    int grp_size = 0;
+    int NID = 0; //network id
+    int nextNet = 0; //next network
+
+    switch (c) 
+    {
+        case 29 :
+            grp_size = 8;
+            Functions(grp_size,f,subnets,NID, nextNet); //
+            break;
+
+
+        case 30 :
+            grp_size = 4;
+            Functions(grp_size, f, subnets, NID, nextNet);
+            break;
+        
+
+     }
+
+}
+
+
+
+
+
+
+int main()
+{
+    cout << "Please input IP: 1.2.3.4:\n";
+   /* int frst = 10;
+    int scnd = 1;
+    int thrd = 1;
+    int frth = 37;*/
+
+    //ctrl+shift+/ to comment block and unblcok
+
+    int frst = 10;
+    int scnd = 2;
+    int thrd = 2;
+    int frth = 20;
+
+    /*
+    cout << "1st:";
+    cin >> frst;
+
+    cout << "2nd:";
+    cin >> scnd;
+
+    cout << "3rd:";
+    cin >> thrd;
+
+    cout << "4th:";
+    cin >> frth;*/
+
+
+    cout << "Your ip is: " << frst << '.' << scnd << '.' << thrd << '.' << frth << endl;
+
+    //cout << "Please give your cidr:";
+    int cidr = 30;
+
+  
+
+    //cin >> cidr;
+
+    if (cidr >= 25 || cidr <= 32) 
+    {
+        fourth_octet(cidr,frth);
+        //Output(frst, scnd, thrd, frth);
+
+
+
+
+    }
+
+
+    return 0;
+}
+
+// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
+// Debug program: F5 or Debug > Start Debugging menu

@@ -1,0 +1,311 @@
+#include <iostream>
+#include <vector>
+#include <tuple>
+#include <cmath>//For power
+
+
+using namespace std;
+
+void OutputVect(vector <int> &v)
+{
+	for(int i = 0; i < v.size(); i++)
+	{
+		cout << v[i] << " ";
+	}
+}
+
+int setWorking(vector <int> &v)
+{
+	int cidr = v[4];
+	int working = 0; //init
+	if (cidr >= 25 && cidr <= 32)
+	{
+		working = v[3];
+		//return working;
+	}
+	else if(cidr >= 17 && cidr <= 24)
+	{
+		working = v[2];
+	}
+	else if(cidr >= 9 && cidr <= 16)
+	{
+		working = v[1];
+	}
+	else if(cidr >= 1 && cidr <= 8)
+	{
+		working = v[0];
+	}
+	else
+	{
+		cout << "No in working";
+	}
+
+	return working;
+}
+tuple <int,int> CheckGroup(vector <int> &v)
+{
+	int cidr = v[4];
+	int group = 0; //init
+	int mask = 0; //init
+	if(cidr == 8 || cidr == 16 || cidr ==24 || cidr == 32)
+	{
+		group = 1;
+		mask = 255;
+	}
+	else if (cidr == 7 || cidr == 15 || cidr == 23 || cidr == 31)
+	{
+		group = 2;
+		mask = 254;
+	}
+	else if (cidr == 6 || cidr == 14 || cidr == 22 || cidr == 30)
+	{
+		group = 4;
+		mask = 252;
+	}
+	else if (cidr == 5 || cidr == 13 || cidr == 21 || cidr == 29)
+	{
+		group = 8;
+		mask = 248;
+	}
+	else if (cidr == 4 || cidr == 12|| cidr == 20 || cidr == 28)
+	{
+		group = 16;
+		mask = 240;
+	}
+	else if (cidr == 3 || cidr == 11 || cidr == 19 || cidr == 27)
+	{
+		group = 32;
+		mask = 224;
+	}
+	else if (cidr == 2 || cidr == 10 || cidr == 18 || cidr == 26)
+	{
+		group = 64;
+		mask = 192;
+	}
+	else if (cidr == 1 || cidr == 9 || cidr == 17 || cidr == 25)
+	{
+		group = 128;
+		mask = 128;
+	}
+	else
+	{
+		cout << "No";
+	}
+
+	return make_tuple(group, mask);
+}
+
+
+tuple <int,int> CheckVect(vector <int> &newv, int &work, vector <int> &v, int &curr)
+{
+	int NID = 0;
+	int NextNet = 0;
+	if (find(newv.begin(), newv.end(), work) != newv.end()) 
+	{
+		NID = work; //Setting it to the working octet
+		NextNet = curr;		
+	}
+	else
+	{
+		if (newv.size() > 1)
+		{
+			NID = newv.rbegin()[1]; //second last element
+			NextNet = curr;
+
+		}
+	}
+	
+	if (work != v[0] && curr == 256)
+	{
+		auto it = find(v.begin(), v.end(), work);
+		if (it != v.end())
+		{
+			int index = distance(v.begin(), it);
+
+			if (index > 0)
+			{
+				v[index - 1] += 1;
+				NextNet = 0;
+			}
+		}
+	}
+	else if (work == v[0] && curr == 256)
+	{
+		NextNet = 69669;
+	}
+		
+	
+	return make_tuple(NID, NextNet);
+	
+}
+
+void OutputVect2(vector <int>& v)
+{
+	for (int i = 0; i < v.size(); i++)
+	{
+		cout << v[i] << ".";
+	}
+	cout << endl;
+}
+
+void NumOfIP(int &cidr)
+{
+	int Bit = 32;
+	int power = Bit - cidr;
+
+	int TotalNum = pow(2, power);
+	int Usable = TotalNum - 2;
+
+	cout << "Total num of IP: " << TotalNum << endl;
+	cout << "Num of Usable IP: " << Usable << endl;
+
+
+
+
+}
+void Details(int& work, vector <int>& v, int& NID, int& NextNet)
+{
+	//Init arrays?
+	vector <int>NetworkID = { 0,0,0,0 };
+	vector <int> NextNetw = { 0,0,0,0 };
+	vector <int> BroadcastIP = { 0,0,0,0 };
+	vector <int> LastIP = { 0,0,0,0 };
+	vector <int> FirstIP = { 0,0,0,0 };
+	vector <int> Subnet = { 0,0,0,0 };
+
+	int BIP = NextNet - 1;
+	int LIP = BIP - 1;
+	int FIP = NID + 1;
+	tuple <int, int> maskk = CheckGroup(v); //size from the fucn
+	int mask = get<1>(maskk);
+
+
+	if (work == v[0])
+	{
+
+		NetworkID = { NID,0,0,0 };
+		NextNetw = { NextNet,0,0,0 };
+		BroadcastIP = { BIP, 255, 255, 255 };
+		LastIP = { BIP, 255, 255, 254 };
+		FirstIP = { NID, 0, 0, 1 };
+		Subnet = {mask,0,0,0};
+
+	}
+	
+	if (work == v[1])
+	{
+		NetworkID = { v[0],NID,0,0 };
+		NextNetw = { v[0],NextNet,0,0 };
+		BroadcastIP = { v[0], BIP, 255, 255 };
+		LastIP = { v[0], BIP, 255, 254 };
+		FirstIP = { v[0], NID, 0, 1 };
+		Subnet = { 255,mask,0,0 };
+
+
+	}
+	
+	if (work == v[2])
+	{
+		NetworkID = { v[0],v[1],NID,0 };
+		NextNetw = { v[0],v[1],NextNet,0 };
+		BroadcastIP = { v[0],v[1] , BIP, 255};
+		LastIP = { v[0], v[1], BIP, 254 };
+		FirstIP = { v[0], v[1],NID, 1 };
+		Subnet = { 255,255,mask,0 };
+
+	}
+	
+	if (work == v[3])
+	{
+		NetworkID = { v[0],v[1],v[2],NID };
+		NextNetw = { v[0],v[1],v[2],NextNet };
+		BroadcastIP = { v[0], v[1], v[2], BIP };
+		LastIP = { v[0], v[1], v[2], LIP };
+		FirstIP = { v[0], v[1],v[2], FIP };
+		Subnet = { 255,255,255,mask };
+
+	}
+
+	cout << "NID: ";
+	OutputVect2(NetworkID);
+
+	cout << "NEXT: ";
+	OutputVect2(NextNetw);
+
+	cout << "BRD: ";
+	OutputVect2(BroadcastIP);
+
+	cout << "LAST: ";
+	OutputVect2(LastIP);
+
+	cout << "FIRST: ";
+	OutputVect2(FirstIP);
+
+	cout << "MASK: ";
+	OutputVect2(Subnet);
+}
+
+
+void Calc(vector <int> &v)
+{
+	int working_octet = setWorking(v); // The octet being worked on
+	tuple <int,int> group = CheckGroup(v); //size from the fucn
+	int group_size = get<0>(group);
+
+
+	vector <int> newvec;//for seeing octet
+	int i = 0;
+	int curr = 0;
+
+
+	while(curr <= working_octet)
+	{
+		i++;
+		curr = i * group_size;
+		newvec.push_back(curr);
+	}
+
+	tuple <int,int> res = CheckVect(newvec,working_octet,v,curr);
+	int NID = get<0>(res);
+	int nextNet = get<1>(res);
+
+
+
+	int ResetOctet = setWorking(v);
+	Details(ResetOctet,v, NID, nextNet);
+	int cidr = v[4];
+	NumOfIP(cidr);
+	
+}
+
+
+int main()
+{
+	cout << "Please input your IP address, each octet should be entered separately." << endl;
+	vector <int> IP_CIDR = { 0,0,0,0,0}; //Init vector
+
+	int first, sec, thrd, frth, cidr;
+	cout << "First: ";
+	cin >> first;
+
+	cout << "Second: ";
+	cin >> sec;
+
+	cout << "Third: ";
+	cin >> thrd;
+
+	cout << "Fourth: ";
+	cin >> frth;
+
+	cout << "CIDR: ";
+	cin >> cidr;
+
+	IP_CIDR = { first,sec,thrd,frth,cidr };
+	OutputVect(IP_CIDR);
+	
+	cout << endl;
+	Calc(IP_CIDR);
+
+	
+	return 0;
+} 

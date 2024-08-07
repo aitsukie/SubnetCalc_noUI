@@ -1,0 +1,114 @@
+void InitMatrix(vector<vector<int>> &v)
+{
+	for(int i = 0; i < v.size(); i++)
+	{
+		for(int j = 0; j < v[i].size();j++)
+		{
+			v[i][j] = 0;//Initializing with 0's.
+		}
+	}
+}
+
+void FillMatrix(int &wrk_octet, vector<vector<int>>& matr, vector <int> &IPvec, int &NID, int &NEXT, int &MASK, int& frst, int& scnd, int& thrd, int& frth, int &brd)
+{
+	int num = 0;
+	//int broadcast = NEXT - 1;
+	int tff = 255;
+	int tffr = 254;
+	int zero = 0;
+	int one = 1;
+
+	for(int i = 0; i < matr.size();i++)
+	{
+		for(int j = 0; j < matr[i].size();j++)
+		{
+			switch(i)
+			{
+				case 0:
+					num = NID;
+					break;
+				case 1:
+					num = NEXT;
+					break;
+				case 4:
+					num = NID;
+					break;
+				case 5:
+					num = MASK;
+					break;
+				default:
+					break;
+			}
+
+			if(wrk_octet == frst)
+			{
+
+				matr[i][0] = num; //The stuff
+				matr[i][j] = 0; //fill with 0's
+
+				matr[2][0] = brd;
+				matr[2][j] = 255;
+
+				matr[3][0] = brd;
+				matr[3][j] = 255;
+
+				matr[3][3] = 254;
+				matr[4][3] = 1;
+				matr[5][j] = 0;
+			}
+			else if(wrk_octet == scnd)
+			{
+				matr[i][j] = IPvec[j];//copy
+				matr[i][1] = num; //The stuff
+				matr[0][j] = zero;
+				matr[2][2] = tff;
+				matr[2][3] = tff;
+				matr[3][3] = tffr;
+				matr[2][2] = brd;
+				matr[3][2] = brd - 1;
+			
+			}
+			else if(wrk_octet == frth) //Fix first host
+			{
+				matr[i][j] = IPvec[j];//copy
+				matr[i][3] = num; //The stuff
+				matr[2][3] = brd;
+				matr[3][3] = brd - 1;
+			}
+		
+		}
+	}
+
+}
+
+
+
+
+void printVect(vector< vector<int> >& matr)
+{
+	for (int i = 0; i < matr.size(); i++)
+	{
+		for (int j = 0; j < matr[i].size(); j++)
+		{
+
+			cout << matr[i][j] << ".";
+		}
+
+		cout << endl;
+	}
+
+}
+	int ROW = 6;
+	int COL = 4;
+	vector < vector<int> >ResultMatrix(ROW,vector<int>(COL));
+	InitMatrix(ResultMatrix);
+	vector <int> newvect = { frst,scnd,thrd,frth };
+
+	//int workMatr = matrWork(ResultMatrix,working_octet,frst,scnd,thrd,frth);
+	int brd = NextNetwork - 1;
+	FillMatrix(working_octet, ResultMatrix, newvect,NetworkID,NextNetwork, mask, frst, scnd, thrd, frth, brd);
+	
+	
+	
+	cout << endl;
+	printVect(ResultMatrix);
