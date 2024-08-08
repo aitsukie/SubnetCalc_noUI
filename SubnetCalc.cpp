@@ -16,9 +16,23 @@ string Introduction()
 }
 void InputVect(vector <int> &v)
 {
+	
+
 	for (int i = 0; i < v.size(); i++)
 	{
-		cout << "Input " << i << ": ";
+		if(i == 0)
+		{
+			cout << "First  Octet: ";
+		}
+		else if(i == 1)
+			cout << "Second Octet: ";
+		else if(i == 2)
+			cout << "Third  Octet: ";
+		else if(i == 3)
+			cout << "Fourth Octet: ";
+		else if(i == 4)
+			cout << "        CIDR: ";
+
 		cin >> v[i];
 	}
 }
@@ -149,43 +163,18 @@ int DetermineNEXT(vector <int> &idnext, vector <int> &IPvec, int &wrk_octet, int
 	int NextNet = 0; //Initialize next net to 0
 	int last = idnext.back();//Last element in the ID_NEXT vector
 
-	//Find Octet in the original IP vector
-	// 
-	//auto OctetIn = find(IPvec.begin(), IPvec.end(), wrk_octet); 
-
-	if(wrk_octet != frst && last == 256) 
+	if(wrk_octet != frst && last == 256) //If the working octet is not the first and next net reaches 256, set it to 0
 	{
-		prev = prev + 1;
+
 		NextNet = 0;
-		/*If the working octet is not the first one from the orignal IP, and the last element in 
-		ID_NEXT is 256. Then set nextNet to 0 and increment the original IP octet before the 
-		Next net by 1*/
-
-
-		/*This if statement checks if wrk_octet was found in IPvec. If find does not find the element, 
-		it returns IPvec.end(), which represents the end of the vector.*/
-
-
-		//if(OctetIn != IPvec.end()) //not sure
-		//{
-		//	int index = distance(IPvec.begin(), OctetIn);
-		//	if(index > 0)
-		//	{
-		//		IPvec[index - 1] += 1;
-		//		NextNet = 0;
-		//	}
-		//	
-		//}
-		
-		//Im not sure ??
 
 	}
-	else if(wrk_octet == frst && last == 256)
-	{
-		/*If the working octet is the first one, and the last element in ID_NEXT is 256,
-		Then the next network is N/A. There is no such thing*/
-		NextNet = 0;
-	}
+	//else if(wrk_octet == frst && last == 256)
+	//{
+	//	/*If the working octet is the first one, and the last element in ID_NEXT is 256,
+	//	Then the next network is N/A. There is no such thing*/
+	//	NextNet = 0;
+	//}
 	else//Otherwise the NextNetwork is the last element of ID_NEXT
 	{
 		NextNet = last;
@@ -194,29 +183,70 @@ int DetermineNEXT(vector <int> &idnext, vector <int> &IPvec, int &wrk_octet, int
 	return NextNet;
 
 }
-
-
-
 void DisplayFirst(int &num, string &word)
 {
 	cout << num << '.' << word << endl;
 }
-
 void DisplaySecond(int& ip_octet, int &num, string& word)
 {
 	cout << ip_octet << '.' << num <<  '.' << word << endl;
 }
-
 void DisplayThird(int& ip_octet, int& ip_octet2, int &num, string& word)
 {
 	cout << ip_octet << '.' << ip_octet2 << '.' << num << '.' << word << endl;
 }
-
 void DisplayFourth(int &ip_octet, int &ip_octet2, int &ip_octet3, int &num)
 {
 	cout << ip_octet << '.' << ip_octet2 << '.' << ip_octet3 << '.' << num << endl;
 }
+void FancyNext(int &octet_before, int &frst, int &scnd, int &thrd, int &frth, int &NextNet, string &NNS, int &wrk_octet )
+{
 
+	if (NextNet == 0)
+	{
+		octet_before = octet_before + 1;
+	}
+	else
+	{
+		octet_before = octet_before;
+	}
+	if (wrk_octet == frst)
+	{
+		if(NextNet == 256)
+		{
+			cout << "Next Network not Available." << endl;
+		}
+		else
+		{
+			DisplayFirst(NextNet, NNS);
+
+		}
+	}
+	if (wrk_octet == scnd)
+	{
+		DisplaySecond(frst, NextNet, NNS);
+	}
+
+	if (wrk_octet == thrd)
+	{
+		DisplayThird(frst, scnd, NextNet, NNS);
+	}
+
+	if (wrk_octet == frth)
+	{
+		DisplayFourth(frst, scnd, thrd, NextNet);
+	}
+
+	if (NextNet == 0)
+	{
+		octet_before = octet_before - 1;
+	}
+	else
+	{
+		octet_before = octet_before;
+	}
+
+}
 void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd, int& frth, int &mask)
 {
 	int BIP = NextNet - 1;
@@ -224,7 +254,11 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 	int FIP = NID + 1;
 	
 
-
+	if(NextNet == 0 || NextNet ==256) //works for 4,3,2
+	{
+		BIP = 255;
+		LIP = 254;
+	}
 	string NNS;
 	string BRD;
 	string LAST;
@@ -254,7 +288,10 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 		DisplayFirst(NID,NNS);
 
 		cout << NextIP;
-		DisplayFirst(NextNet, NNS);
+	//	DisplayFirst(NextNet, NNS);
+		int fill = 0; //filler intger, no octet to be worked on
+		FancyNext(fill, frst, scnd, thrd, frth, NextNet, NNS, work);
+
 		cout << brdIP;
 		DisplayFirst(BIP, BRD);
 		cout << lastIP;
@@ -276,7 +313,10 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 		cout << ID;
 		DisplaySecond(frst,NID, NNS);
 		cout << NextIP;
-		DisplaySecond(frst, NextNet, NNS);
+		
+		FancyNext(frst, frst, scnd, thrd, frth, NextNet, NNS, work);
+
+
 		cout << brdIP;
 		DisplaySecond(frst, BIP, BRD);
 		cout << lastIP;
@@ -285,6 +325,7 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 		DisplaySecond(frst, NID, FRST);
 		cout << submask;
 		DisplaySecond(max_subnet, mask, NNS);
+
 
 	}
 
@@ -299,7 +340,8 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 		DisplayThird(frst,scnd, NID, NNS);
 		cout << NextIP;
 
-		DisplayThird(frst, scnd, NextNet, NNS);
+		FancyNext(scnd, frst, scnd, thrd, frth, NextNet, NNS, work);
+
 		cout << brdIP;
 
 		DisplayThird(frst, scnd, BIP, BRD);
@@ -317,8 +359,9 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 	{
 		cout << ID;
 		DisplayFourth(frst,scnd,thrd,NID);
-		cout << NextIP;
-		DisplayFourth(frst, scnd, thrd, NextNet);
+
+		cout << NextIP;	
+		FancyNext(thrd, frst, scnd, thrd, frth, NextNet, NNS, work);
 		cout << brdIP;
 		DisplayFourth(frst, scnd, thrd, BIP);
 		cout << lastIP;
@@ -328,19 +371,21 @@ void Details(int& work, int& NID, int& NextNet, int& frst, int& scnd, int& thrd,
 		cout << submask;
 		DisplayFourth(max_subnet, max_subnet, max_subnet, mask);
 
+
+	
+		
+
 	}
 
 	
 }
-
-
 int main()
 {
+
 	string intro = Introduction(); //Brief Explanation of concept and usage.
-	cout << intro; //Outputing text
+	cout << intro << endl; //Outputing text
 
 	vector <int> IP_CIDR(5,0); //Initializing vector with 0's.
-
 	InputVect(IP_CIDR);
 	int frst = IP_CIDR[0]; //first octet at the 0th element of vector. 
 	int scnd = IP_CIDR[1]; //second octet
